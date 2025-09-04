@@ -1,0 +1,21 @@
+name: Workflow Main Merge
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  deploy:
+    name: Deploy
+    uses: ./.github/workflows/job-deploy.yaml
+
+  notify:
+    name: Notify
+    needs: deploy
+    if: ${{ always() }}
+    uses: ./.github/workflows/job-notify-build.yaml
+    with:
+      build_status: ${{ needs.docker.result }}
+    secrets:
+      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
