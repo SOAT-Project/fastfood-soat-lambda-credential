@@ -40,14 +40,10 @@ public class JwtService {
         }
     }
 
-    private Jws<Claims> parseToken(String token) throws JwtException {
+    public Jws<Claims> parseToken(String token) throws JwtException {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token);
-    }
-
-    private Claims extractClaims(String token) {
-        return parseToken(token).getBody();
     }
 }
