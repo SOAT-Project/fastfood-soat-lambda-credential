@@ -1,13 +1,24 @@
+resource "aws_s3_bucket" "lambda-auth-service-bucket" {
+  bucket = "lambda-auth-service-bucket"
+}
+
+resource "aws_s3_object" "lambda_auth_service_zip" {
+  bucket = aws_s3_bucket.lambda-auth-service-bucket.id
+  key    = "auth-service.zip"
+  source = "${path.module}/../../auth-service.zip"
+}
+
 resource "aws_lambda_function" "auth" {
   function_name = "auth-service"
-  handler       = "com.example.auth.handler.AuthHandler"
+  handler       = "soat.project.lambdacredential.auth.Handler"
   runtime       = "java17"
   role          = aws_iam_role.lambda_role.arn
   memory_size   = 512
   timeout       = 15
 
-  filename         = "${path.module}/../build/distributions/auth-service.zip"
-  source_code_hash = filebase64sha256("${path.module}/../build/distributions/auth-service.zip")
+  s3_bucket = aws_s3_bucket.lambda-auth-service-bucket.id
+  s3_key    = aws_s3_object.lambda_auth_service_zip.key
+  source_code_hash = aws_s3_object.lambda_auth_service_zip.etag
 
   environment {
     variables = {

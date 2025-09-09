@@ -1,3 +1,0 @@
-####
-# TERRAFORM CONFIGURATION
-####
