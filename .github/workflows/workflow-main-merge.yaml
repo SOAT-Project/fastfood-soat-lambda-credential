@@ -1,0 +1,25 @@
+name: Workflow Main Merge
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  deploy-middleware:
+    name: Deploy Authorization Middleware
+    uses: ./.github/workflows/job-deploy-middleware.yaml
+
+  deploy-auth:
+    name: Deploy Auth Service
+    uses: ./.github/workflows/job-deploy-auth.yaml
+
+  notify:
+    name: Notify
+    needs: [deploy-auth, deploy-middleware]
+    if: ${{ always() }}
+    uses: ./.github/workflows/job-notify-build.yaml
+    with:
+      build_status: ${{ needs.docker.result }}
+    secrets:
+      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}

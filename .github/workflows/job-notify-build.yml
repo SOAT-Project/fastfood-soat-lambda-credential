@@ -1,0 +1,38 @@
+name: Notify Discord Build Status
+
+on:
+  workflow_call:
+    inputs:
+      build_status:
+        required: true
+        type: string
+    secrets:
+      DISCORD_BUILD_WEBHOOK:
+        required: true
+
+jobs:
+
+  notify-discord:
+    name: Discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Build Status to Discord
+        env:
+          REPO_NAME: ${{ github.event.repository.name }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BUILD_STATUS: ${{ inputs.build_status }}
+        run: |
+          if [ "$BUILD_STATUS" == "success" ]; then
+            MESSAGE="✅ Docker build and push for '$REPO_NAME' succeeded on the 'main' branch! [View Workflow]($WORKFLOW_URL)"
+            COLOR=3066993
+          elif [ "$BUILD_STATUS" == "failure" ]; then
+            MESSAGE="❌ Docker build and push for '$REPO_NAME' failed on the 'main' branch! [View Workflow]($WORKFLOW_URL)"
+            COLOR=15158332
+          else
+            MESSAGE="⚠️ Docker build and push status: ${BUILD_STATUS} for '$REPO_NAME' on the 'main' branch. [View Workflow]($WORKFLOW_URL)"
+            COLOR=16776960
+          fi
+          
+          curl -H "Content-Type: application/json" \
+          -d "{\"embeds\":[{\"description\":\"$MESSAGE\",\"color\":$COLOR}]}" \
+          "${{ secrets.DISCORD_BUILD_WEBHOOK }}"

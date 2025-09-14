@@ -1,0 +1,5 @@
+rootProject.name = 'lambdacredential'
+
+include("auth-service")
+include("middleware-service")
+include("common")
