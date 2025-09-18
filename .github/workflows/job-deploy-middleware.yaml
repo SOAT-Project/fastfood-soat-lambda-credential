@@ -1,11 +1,20 @@
 name: Deploy FastFoodSoatLambdaCredential Middleware
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "middleware-service/**"
-      - "common/**"
+  workflow_call:
+    inputs:
+      environment:
+        required: false
+        type: string
+    secrets:
+      AWS_ROLE_TO_ASSUME:
+        required: true
+      S3_BUCKET:
+        required: true
+      JWT_SECRET:
+        required: true
+      DISCORD_BUILD_WEBHOOK:
+        required: false
 
 jobs:
   build:
