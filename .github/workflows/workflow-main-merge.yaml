@@ -10,9 +10,9 @@ jobs:
     name: Deploy Authorization Middleware
     uses: ./.github/workflows/job-deploy-middleware.yaml
 
-#  deploy-auth:
-#    name: Deploy Auth Service
-#    uses: ./.github/workflows/job-deploy-auth.yaml
+  deploy-auth:
+    name: Deploy Auth Service
+    uses: ./.github/workflows/job-deploy-auth.yaml
 
   notify:
     name: Notify
