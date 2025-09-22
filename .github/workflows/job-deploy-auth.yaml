@@ -98,7 +98,5 @@ jobs:
     if: always()
     needs: [build, deploy]
     uses: ./.github/workflows/job-notify-build.yaml
-    with:
-      build_status: ${{ needs.deploy.result }}
     secrets:
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
