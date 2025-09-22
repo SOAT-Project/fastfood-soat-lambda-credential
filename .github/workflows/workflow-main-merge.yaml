@@ -38,8 +38,10 @@ jobs:
 
   notify:
     name: Notify
-    needs: [deploy-middleware]
+    needs: [deploy-middleware, deploy-auth]
     if: ${{ always() }}
     uses: ./.github/workflows/job-notify-build.yaml
+    with:
+      build_status: ${{ needs.deploy-middleware.result == 'success' && needs.deploy-auth.result == 'success' && 'success' || 'failure' }}
     secrets:
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
