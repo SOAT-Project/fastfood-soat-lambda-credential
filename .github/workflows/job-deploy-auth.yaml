@@ -7,7 +7,7 @@ on:
         required: false
         type: string
     secrets:
-      AWS_ACCOUNT_ID:
+      AWS_ROLE_TO_ASSUME:
         required: true
       S3_BUCKET:
         required: true
@@ -69,7 +69,7 @@ jobs:
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubDeployLambdaRole
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: sa-east-1
 
       - name: Terraform Init
