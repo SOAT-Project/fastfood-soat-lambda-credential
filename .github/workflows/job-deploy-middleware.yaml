@@ -69,9 +69,15 @@ jobs:
         working-directory: ./middleware-service/terraform
         run: terraform init
 
-      - name: Terraform Format
+      - name: Terraform Format Check
+        if: github.event_name == 'pull_request'
         working-directory: ./middleware-service/terraform
-        run: terraform fmt -check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Auto Format
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./middleware-service/terraform
+        run: terraform fmt -recursive
 
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
