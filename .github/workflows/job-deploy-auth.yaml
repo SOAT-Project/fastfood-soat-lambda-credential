@@ -93,9 +93,18 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./auth-service/terraform
-        run: terraform apply -auto-approve \
-          -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
-          -var="db_user=${{ secrets.DB_USER }}" \
-          -var="db_password=${{ secrets.DB_PASSWORD }}" \
-          -var="db_host=${{ secrets.DB_HOST }}" \
-          -var="db_name=${{ secrets.DB_NAME }}"
+        run: |
+          terraform apply -auto-approve \
+            -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
+            -var="db_user=${{ secrets.DB_USER }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="db_host=${{ secrets.DB_HOST }}" \
+            -var="db_name=${{ secrets.DB_NAME }}"
+
+      - name: Trigger CodeDeploy Deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name auth-service-app \
+            --deployment-group-name auth-service-dg \
+            --deployment-config-name CodeDeployDefault.LambdaAllAtOnce \
+            --s3-location bucket=${{ secrets.S3_BUCKET }},key=auth-service.zip,bundleType=zip

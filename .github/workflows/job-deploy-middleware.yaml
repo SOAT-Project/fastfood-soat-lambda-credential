@@ -87,8 +87,7 @@ jobs:
       - name: Terraform Apply
         id: apply
         working-directory: ./middleware-service/terraform
-        run: terraform apply -auto-approve \
-          -var="jwt_secret=${{ secrets.JWT_SECRET }}"
+        run: terraform apply -auto-approve -var="jwt_secret=${{ secrets.JWT_SECRET }}"
 
       - name: Trigger CodeDeploy Deployment
         run: |
