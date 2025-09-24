@@ -45,9 +45,6 @@ jobs:
       - name: Package Lambda
         run: zip -j middleware-service.zip middleware-service/build/libs/*-all.jar
 
-      - name: Upload to S3
-        run: aws s3 cp middleware-service.zip s3://${{ secrets.S3_BUCKET }}/middleware-service.zip
-
   deploy:
     runs-on: ubuntu-latest
     permissions:
