@@ -16,8 +16,8 @@ resource "aws_lambda_function" "auth" {
   memory_size   = 512
   timeout       = 15
 
-  s3_bucket = aws_s3_bucket.lambda-auth-service-bucket.id
-  s3_key    = aws_s3_object.lambda_auth_service_zip.key
+  s3_bucket        = aws_s3_bucket.lambda-auth-service-bucket.id
+  s3_key           = aws_s3_object.lambda_auth_service_zip.key
   source_code_hash = aws_s3_object.lambda_auth_service_zip.etag
 
   environment {

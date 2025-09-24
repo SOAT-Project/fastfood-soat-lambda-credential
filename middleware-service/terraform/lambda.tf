@@ -16,13 +16,13 @@ resource "aws_lambda_function" "middleware" {
   memory_size   = 512
   timeout       = 15
 
-  s3_bucket = aws_s3_bucket.lambda-middleware-service-bucket.id
-  s3_key    = aws_s3_object.lambda_middleware-service_zip.key
+  s3_bucket        = aws_s3_bucket.lambda-middleware-service-bucket.id
+  s3_key           = aws_s3_object.lambda_middleware-service_zip.key
   source_code_hash = aws_s3_object.lambda_middleware-service_zip.etag
 
   environment {
     variables = {
-      JWT_SECRET        = var.jwt_secret
+      JWT_SECRET = var.jwt_secret
     }
   }
 }
