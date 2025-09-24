@@ -45,8 +45,8 @@ jobs:
       - name: Package Lambda
         run: zip -j middleware-service.zip middleware-service/build/libs/*-all.jar
 
-      - name: Move zip for Terraform
-        run: mv middleware-service.zip middleware-service/
+      - name: Move Lambda zip to terraform folder
+        run: mv middleware-service/middleware-service.zip middleware-service/terraform/
 
   deploy:
     runs-on: ubuntu-latest
