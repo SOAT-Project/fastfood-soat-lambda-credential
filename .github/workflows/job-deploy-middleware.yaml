@@ -45,6 +45,15 @@ jobs:
       - name: Package Lambda
         run: zip -j middleware-service/terraform/middleware-service.zip middleware-service/build/libs/*-all.jar
 
+      - name: Verify zip exists
+        run: ls -lh middleware-service/terraform/
+
+      - name: Upload Lambda Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: middleware-service-zip
+          path: middleware-service/terraform/middleware-service.zip
+
   deploy:
     runs-on: ubuntu-latest
     permissions:
@@ -53,6 +62,12 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download Lambda Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: middleware-service-zip
+          path: middleware-service/terraform/
 
       - uses: hashicorp/setup-terraform@v3
         with:
