@@ -5,7 +5,7 @@ data "aws_s3_bucket" "soat-credential-lambdas" {
 resource "aws_s3_object" "lambda_auth_service_zip" {
   bucket = data.aws_s3_bucket.soat-credential-lambdas.id
   key    = "auth-service.zip"
-  source = "${path.module}/../../auth-service.zip"
+  source = "${path.module}/auth-service.zip"
 }
 
 resource "aws_lambda_function" "auth" {
@@ -22,10 +22,11 @@ resource "aws_lambda_function" "auth" {
 
   environment {
     variables = {
-      JWT_SECRET        = var.jwt_secret
-      DB_PROXY_ENDPOINT = var.db_proxy_endpoint
-      DB_USER           = var.db_user
-      DB_PASSWORD       = var.db_password
+      JWT_SECRET  = var.jwt_secret
+      DB_HOST     = var.db_host
+      DB_NAME     = var.db_name
+      DB_USER     = var.db_user
+      DB_PASSWORD = var.db_password
     }
   }
 }
