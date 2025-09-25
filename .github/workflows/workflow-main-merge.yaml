@@ -2,7 +2,7 @@ name: Workflow Main Merge
 
 on:
   push:
-    branches: [ release, main ]
+    branches: [ main ]
 
 permissions:
   id-token: write
