@@ -91,7 +91,12 @@ jobs:
       - name: Terraform Import Lambda (if exists)
         working-directory: ./auth-service/terraform
         run: |
-          terraform import aws_lambda_function.auth auth-service || echo "Lambda não existe, será criada"
+          terraform import -var="jwt_secret=${{ secrets.JWT_SECRET }}" \
+            -var="db_user=${{ secrets.DB_USER }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="db_host=${{ secrets.DB_HOST }}" \
+            -var="db_name=${{ secrets.DB_NAME }}" \
+            aws_lambda_function.auth auth-service || echo "Lambda não existe, será criada"
 
       - name: Terraform Format Check
         if: github.event_name == 'pull_request'
