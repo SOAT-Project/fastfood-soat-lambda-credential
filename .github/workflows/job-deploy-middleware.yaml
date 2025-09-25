@@ -45,9 +45,6 @@ jobs:
       - name: Package Lambda
         run: zip -j middleware-service/terraform/middleware-service.zip middleware-service/build/libs/*-all.jar
 
-      - name: Verify zip exists
-        run: ls -lh middleware-service/terraform/
-
       - name: Upload Lambda Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -103,11 +100,3 @@ jobs:
         id: apply
         working-directory: ./middleware-service/terraform
         run: terraform apply -auto-approve -var="jwt_secret=${{ secrets.JWT_SECRET }}"
-
-      - name: Trigger CodeDeploy Deployment
-        run: |
-          aws deploy create-deployment \
-            --application-name middleware-service-app \
-            --deployment-group-name middleware-service-dg \
-            --deployment-config-name CodeDeployDefault.LambdaAllAtOnce \
-            --s3-location bucket=${{ secrets.S3_BUCKET }},key=middleware-service.zip,bundleType=zip

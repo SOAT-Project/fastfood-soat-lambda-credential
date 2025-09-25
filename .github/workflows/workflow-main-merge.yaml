@@ -21,20 +21,20 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
 
-#  deploy-auth:
-#    name: Deploy Auth Service
-#    uses: ./.github/workflows/job-deploy-auth.yaml
-#    with:
-#      environment: prod
-#    secrets:
-#      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-#      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-#      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-#      DB_USER: ${{ secrets.DB_USER }}
-#      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#      DB_HOST: ${{ secrets.DB_HOST }}
-#      DB_NAME: ${{ secrets.DB_NAME }}
-#      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
+  deploy-auth:
+    name: Deploy Auth Service
+    uses: ./.github/workflows/job-deploy-auth.yaml
+    with:
+      environment: prod
+    secrets:
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
 
   notify:
     name: Notify
@@ -42,6 +42,6 @@ jobs:
     if: ${{ always() }}
     uses: ./.github/workflows/job-notify-build.yaml
     with:
-      build_status: ${{ needs.deploy-middleware.result == 'success' && 'success' || 'failure' }}
+      build_status: ${{ needs.deploy-middleware.result && needs.deploy-auth.result == 'success' && 'success' || 'failure' }}
     secrets:
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
