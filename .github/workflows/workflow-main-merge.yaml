@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
 
   deploy-middleware:
@@ -12,7 +16,7 @@ jobs:
     with:
       environment: prod
     secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       S3_BUCKET: ${{ secrets.S3_BUCKET }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
@@ -23,7 +27,7 @@ jobs:
     with:
       environment: prod
     secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       S3_BUCKET: ${{ secrets.S3_BUCKET }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       DB_USER: ${{ secrets.DB_USER }}
@@ -37,5 +41,7 @@ jobs:
     needs: [deploy-middleware]
     if: ${{ always() }}
     uses: ./.github/workflows/job-notify-build.yaml
+    with:
+      build_status: ${{ needs.deploy-middleware.result && needs.deploy-auth.result == 'success' && 'success' || 'failure' }}
     secrets:
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}

@@ -18,7 +18,12 @@ variable "db_password" {
   sensitive   = true
 }
 
-variable "db_proxy_endpoint" {
-  description = "Database proxy endpoint"
+variable "db_host" {
+  description = "Database host"
+  type        = string
+}
+
+variable "db_name" {
+  description = "Database name"
   type        = string
 }
