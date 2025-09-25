@@ -43,10 +43,7 @@ jobs:
         run: ./gradlew :middleware-service:clean :middleware-service:shadowJar
 
       - name: Package Lambda
-        run: zip -j middleware-service.zip middleware-service/build/libs/*-all.jar
-
-      - name: Move Lambda zip to terraform folder
-        run: mv middleware-service.zip middleware-service/terraform/
+        run: zip -j middleware-service/terraform/middleware-service.zip middleware-service/build/libs/*-all.jar
 
   deploy:
     runs-on: ubuntu-latest
