@@ -75,11 +75,6 @@ jobs:
              -backend-config="region=${{ secrets.aws-region }}" \
              -backend-config="dynamodb_table=${{ secrets.aws-lock-dynamodb-table }}" \
 
-      - name: Terraform Import Lambda (if exists)
-        working-directory: ./middleware-service/terraform
-        run: |
-          terraform import -var="jwt_secret=${{ secrets.jwt-secret }}" aws_lambda_function.middleware middleware-service || echo "Lambda não existe, será criada"
-
       - name: Terraform Format Check
         if: github.event_name == 'pull_request'
         working-directory: ./middleware-service/terraform
