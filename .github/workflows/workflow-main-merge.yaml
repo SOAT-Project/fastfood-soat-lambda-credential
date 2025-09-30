@@ -2,7 +2,7 @@ name: Workflow Main Merge
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, release ]
 
 permissions:
   id-token: write
@@ -13,28 +13,26 @@ jobs:
   deploy-middleware:
     name: Deploy Authorization Middleware
     uses: ./.github/workflows/job-deploy-middleware.yaml
-    with:
-      environment: prod
     secrets:
-      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
+      aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
+      aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
+      jwt_secret: ${{ secrets.JWT_SECRET }}
 
   deploy-auth:
     name: Deploy Auth Service
     uses: ./.github/workflows/job-deploy-auth.yaml
-    with:
-      environment: prod
     secrets:
-      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
+      aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
+      aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
+      jwt_secret: ${{ secrets.JWT_SECRET }}
+      db_username: ${{ secrets.DB_USERNAME }}
+      db_password: ${{ secrets.DB_PASSWORD }}
+      db_host: ${{ secrets.DB_HOST }}
+      db_name: ${{ secrets.DB_NAME }}
 
   notify:
     name: Notify
