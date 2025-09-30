@@ -15,15 +15,15 @@ on:
         required: true
       aws-statefile-s3-bucket:
         required: true
-      jwt_secret:
+      jwt-secret:
         required: true
-      db_username:
+      db-username:
         required: true
-      db_password:
+      db-password:
         required: true
-      db_host:
+      db-host:
         required: false
-      db_name:
+      db-name:
         required: false
 
 jobs:
@@ -86,11 +86,11 @@ jobs:
       - name: Terraform Import Lambda (if exists)
         working-directory: ./auth-service/terraform
         run: |
-          terraform import -var="jwt_secret=${{ secrets.jwt_secret }}" \
-            -var="db_user=${{ secrets.db_user }}" \
-            -var="db_password=${{ secrets.db_password }}" \
-            -var="db_host=${{ secrets.db_host }}" \
-            -var="db_name=${{ secrets.db_name }}" \
+          terraform import -var="jwt_secret=${{ secrets.jwt-secret }}" \
+            -var="db_user=${{ secrets.db-user }}" \
+            -var="db_password=${{ secrets.db-password }}" \
+            -var="db_host=${{ secrets.db-host }}" \
+            -var="db_name=${{ secrets.db-name }}" \
             aws_lambda_function.auth auth-service || echo "Lambda não existe, será criada"
 
       - name: Terraform Format Check
@@ -112,8 +112,8 @@ jobs:
         working-directory: ./auth-service/terraform
         run: |
           terraform apply -auto-approve \
-            -var="jwt_secret=${{ secrets.jwt_secret }}" \
-            -var="db_user=${{ secrets.db_user }}" \
-            -var="db_password=${{ secrets.db_password }}" \
-            -var="db_host=${{ secrets.db_host }}" \
-            -var="db_name=${{ secrets.db_name }}"
+            -var="jwt_secret=${{ secrets.jwt-secret }}" \
+            -var="db_user=${{ secrets.db-user }}" \
+            -var="db_password=${{ secrets.db-password }}" \
+            -var="db_host=${{ secrets.db-host }}" \
+            -var="db_name=${{ secrets.db-name }}"

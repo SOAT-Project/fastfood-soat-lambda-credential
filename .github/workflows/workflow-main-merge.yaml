@@ -18,7 +18,7 @@ jobs:
       aws-region: ${{ secrets.AWS_REGION }}
       aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
-      jwt_secret: ${{ secrets.JWT_SECRET }}
+      jwt-secret: ${{ secrets.JWT_SECRET }}
 
   deploy-auth:
     name: Deploy Auth Service
@@ -28,11 +28,11 @@ jobs:
       aws-region: ${{ secrets.AWS_REGION }}
       aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
-      jwt_secret: ${{ secrets.JWT_SECRET }}
-      db_username: ${{ secrets.DB_USERNAME }}
-      db_password: ${{ secrets.DB_PASSWORD }}
-      db_host: ${{ secrets.DB_HOST }}
-      db_name: ${{ secrets.DB_NAME }}
+      jwt-secret: ${{ secrets.JWT_SECRET }}
+      db-username: ${{ secrets.DB_USERNAME }}
+      db-password: ${{ secrets.DB_PASSWORD }}
+      db-host: ${{ secrets.DB_HOST }}
+      db-name: ${{ secrets.DB_NAME }}
 
   notify:
     name: Notify
