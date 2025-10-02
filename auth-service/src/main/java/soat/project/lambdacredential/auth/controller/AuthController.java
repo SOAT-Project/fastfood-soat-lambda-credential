@@ -25,7 +25,7 @@ public class AuthController {
 
     public APIGatewayProxyResponseEvent userAuth(Map<String, Object> body) {
         try {
-            String cpf = (String) body.get("cpf");
+            String cpf = (String) body.get("identification");
             if (cpf == null) {
                 String tokenGuest = jwtService.generateToken(
                         "guest",
