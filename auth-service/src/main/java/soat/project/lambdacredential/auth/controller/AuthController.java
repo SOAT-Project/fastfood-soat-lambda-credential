@@ -67,7 +67,9 @@ public class AuthController {
 
             return successResponse(token);
         } catch (Exception e) {
-            return errorResponse(e.getMessage(), 500);
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "Erro desconhecido";
+
+            return errorResponse(errorMsg, 500);
         }
     }
 

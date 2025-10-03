@@ -29,7 +29,11 @@ public class StaffService {
                         rs.getString("name")
                 );
             }
+        } catch (SQLException e) {
+            System.err.println("Erro SQL: " + e.getMessage());
+            throw new RuntimeException("Erro ao acessar o banco de dados.");
         }
+
         return null;
     }
 }
