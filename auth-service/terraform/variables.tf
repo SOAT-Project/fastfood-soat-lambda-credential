@@ -8,7 +8,7 @@ variable "jwt_secret" {
   sensitive   = true
 }
 
-variable "db_user" {
+variable "db_username" {
   description = "Master username for the database"
   type        = string
 }
