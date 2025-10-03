@@ -9,7 +9,7 @@ public class Database {
     private final String password;
 
     public Database() {
-        this.url = "jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_NAME" + "?sslmode=disable");
+        this.url = "jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_NAME") + "?sslmode=disable";
         this.user = System.getenv("DB_USER");
         this.password = System.getenv("DB_PASSWORD");
     }
@@ -18,7 +18,6 @@ public class Database {
         Properties props = new Properties();
         props.setProperty("user", this.user);
         props.setProperty("password", this.password);
-        props.setProperty("ssl", "true");
         return DriverManager.getConnection(url, props);
     }
 }
