@@ -105,7 +105,7 @@ jobs:
         run: |
           terraform apply -auto-approve \
             -var="jwt_secret=${{ secrets.jwt-secret }}" \
-            -var="db_user=${{ secrets.db-user }}" \
+            -var="db_username=${{ secrets.db-username }}" \
             -var="db_password=${{ secrets.db-password }}" \
             -var="db_host=${{ secrets.db-host }}" \
             -var="db_name=${{ secrets.db-name }}"

@@ -22,7 +22,7 @@ resource "aws_lambda_function" "auth" {
       JWT_SECRET  = var.jwt_secret
       DB_HOST     = var.db_host
       DB_NAME     = var.db_name
-      DB_USER     = var.db_user
+      DB_USERNAME = var.db_username
       DB_PASSWORD = var.db_password
     }
   }

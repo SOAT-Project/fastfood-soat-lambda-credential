@@ -10,7 +10,7 @@ public class Database {
 
     public Database() {
         this.url = "jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_NAME") + "?sslmode=disable";
-        this.user = System.getenv("DB_USER");
+        this.user = System.getenv("DB_USERNAME");
         this.password = System.getenv("DB_PASSWORD");
     }
 
