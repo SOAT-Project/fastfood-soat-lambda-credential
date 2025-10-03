@@ -18,7 +18,6 @@ public class Database {
         Properties props = new Properties();
         props.setProperty("user", this.user);
         props.setProperty("password", this.password);
-        props.setProperty("ssl", "true");
         return DriverManager.getConnection(url, props);
     }
 }
