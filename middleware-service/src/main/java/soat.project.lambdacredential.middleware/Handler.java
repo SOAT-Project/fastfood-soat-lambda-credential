@@ -33,7 +33,15 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
         try {
             Map<String, String> headers = (Map<String, String>) event.get("headers");
 
-            String authHeader = getAuthorizationHeader(headers);
+            String authHeader = null;
+            if (headers != null) {
+                authHeader = getAuthorizationHeader(headers);
+            }
+
+            if (authHeader == null && event.get("authorizationToken") != null) {
+                authHeader = (String) event.get("authorizationToken");
+            }
+
             if (authHeader == null) {
                 return deny("user", "*", "Authorization header is missing");
             }
@@ -73,7 +81,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
         if (Objects.equals(role, "STAFF")) return true;
 
         List<String> routes = USER_ROUTE_NOT_ALLOWED.get(method);
-        if (routes == null) return false;
+        if (routes == null) return true;
 
         return routes.contains(path);
     }
