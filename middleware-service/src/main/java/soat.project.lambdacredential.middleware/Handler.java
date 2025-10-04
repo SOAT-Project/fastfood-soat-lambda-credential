@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jws;
 import soat.project.lambdacredential.common.security.JwtService;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +32,11 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
     @SuppressWarnings("unchecked")
     public Map<String, Object> handleRequest(Map<String, Object> event, Context context) {
         try {
+            System.out.println("Event: " + event);
+
             String authHeader = (String) event.get("authorizationToken");
+
+            System.out.println("authHeader: " + authHeader);
             if (authHeader == null) {
                 return deny("user", "*", "Authorization header is missing");
             }
@@ -41,6 +46,8 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             }
 
             String token = authHeader.substring(7);
+
+            System.out.println("token: " + token);
 
             if (!jwtService.isValid(token)) {
                 return deny("user", "*", "Invalid or expired token");
@@ -54,14 +61,22 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
             String methodArn = (String) event.get("methodArn");
 
+            System.out.println("methodArn: " + methodArn);
+
             String[] arnParts = methodArn.split(":");
             String apiGatewayArnPart = arnParts[5];
 
             String[] arnDetails = apiGatewayArnPart.split("/");
             String stage = arnDetails[1];
             String method = arnDetails[2];
+
+            System.out.println("stage: " + stage);
+            System.out.println("method: " + method);
+            System.out.println("role: " + Arrays.toString(arnDetails));
+
             String path = arnDetails.length > 3 ? "/" + String.join("/", java.util.Arrays.copyOfRange(arnDetails, 3, arnDetails.length)) : "/";
 
+            System.out.println("path: " + path);
 
             if (!isAuthorized(role, path, method)) {
                 return deny(subject, "*", "User not authorized for this route");
@@ -69,6 +84,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
             return allow(subject, "*", role, name);
         } catch (Exception e) {
+            e.printStackTrace();
             return deny("user", "*", "Error: " + e.getMessage());
         }
     }
