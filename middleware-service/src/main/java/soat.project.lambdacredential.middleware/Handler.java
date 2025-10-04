@@ -31,12 +31,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
     @SuppressWarnings("unchecked")
     public Map<String, Object> handleRequest(Map<String, Object> event, Context context) {
         try {
-            Map<String, String> headers = (Map<String, String>) event.get("headers");
-
-            System.out.println("Event: " + event);
-            System.out.println("headers: " + headers);
-
-            String authHeader = getAuthorizationHeader(headers);
+            String authHeader = (String) event.get("authorizationToken");
             if (authHeader == null) {
                 return deny("user", "*", "Authorization header is missing");
             }
