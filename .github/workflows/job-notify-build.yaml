@@ -23,13 +23,13 @@ jobs:
           BUILD_STATUS: ${{ inputs.build_status }}
         run: |
           if [ "$BUILD_STATUS" == "success" ]; then
-            MESSAGE="✅ Docker build and push for '$REPO_NAME' succeeded on the 'main' branch! [View Workflow]($WORKFLOW_URL)"
+            MESSAGE="✅ Build and push for '$REPO_NAME' succeeded on the 'main' branch! [View Workflow]($WORKFLOW_URL)"
             COLOR=3066993
           elif [ "$BUILD_STATUS" == "failure" ]; then
-            MESSAGE="❌ Docker build and push for '$REPO_NAME' failed on the 'main' branch! [View Workflow]($WORKFLOW_URL)"
+            MESSAGE="❌ Build and push for '$REPO_NAME' failed on the 'main' branch! [View Workflow]($WORKFLOW_URL)"
             COLOR=15158332
           else
-            MESSAGE="⚠️ Docker build and push status: ${BUILD_STATUS} for '$REPO_NAME' on the 'main' branch. [View Workflow]($WORKFLOW_URL)"
+            MESSAGE="⚠️ Build and push status: ${BUILD_STATUS} for '$REPO_NAME' on the 'main' branch. [View Workflow]($WORKFLOW_URL)"
             COLOR=16776960
           fi
           

@@ -35,6 +35,12 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             List<String> availablePathList = Arrays.asList("/auths/client", "/auths/staff");
             String availableMethod = "POST";
 
+            if (event.getBody() == null || event.getBody().isBlank()) {
+                return new APIGatewayProxyResponseEvent()
+                        .withStatusCode(400)
+                        .withBody("{\"error\":\"Request body is required\"}");
+            }
+
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> body = mapper.readValue(event.getBody(), Map.class);
 
@@ -53,7 +59,9 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
             return authController.userAuth(body);
         } catch (Exception e) {
-            return new APIGatewayProxyResponseEvent().withStatusCode(500).withBody("Internal Error");
+            context.getLogger().log("Erro na lambda: " + e.getMessage());
+            e.printStackTrace();
+            return new APIGatewayProxyResponseEvent().withStatusCode(500).withBody("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 }

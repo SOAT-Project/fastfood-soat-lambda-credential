@@ -12,7 +12,7 @@ public class ClientService {
         this.db = db;
     }
 
-    public Client findByCpf(String cpf) throws SQLException {
+    public Client findByCpf(String cpf) {
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT public_id, cpf, name, email FROM clients WHERE cpf = ?")) {
                 stmt.setString(1, cpf);
@@ -26,7 +26,11 @@ public class ClientService {
                             rs.getString("name")
                     );
                 }
+        } catch (SQLException e) {
+            System.err.println("Erro SQL: " + e.getMessage());
+            throw new RuntimeException("Erro ao acessar o banco de dados.");
         }
+
         return null;
     }
 
