@@ -15,6 +15,10 @@ public class JwtService {
     private final Duration expiration;
 
     public JwtService(String secret, Duration expiration) {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalArgumentException("JWT secret não pode ser nulo ou vazio");
+        }
+
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.expiration = expiration;
     }
@@ -48,10 +52,11 @@ public class JwtService {
         return false;
     }
 
-    public Jws<Claims> parseToken(String token) throws JwtException {
+    public Jws<Claims> parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token);
+
     }
 }

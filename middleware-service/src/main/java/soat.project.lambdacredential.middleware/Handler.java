@@ -25,6 +25,8 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
     public Handler() {
         String secret = System.getenv("JWT_SECRET");
+
+        System.out.println("JWT_SECRET: " + secret);
         this.jwtService = new JwtService(secret, Duration.ofHours(1));
     }
 
@@ -50,10 +52,14 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             System.out.println("token: " + token);
 
             if (!jwtService.isValid(token)) {
+                System.out.println("ERRO PARSE: ");
+
                 return deny("user", "*", "Invalid or expired token");
             }
 
             Jws<Claims> parsed = jwtService.parseToken(token);
+
+            System.out.println("parsed: " + parsed);
 
             String subject = parsed.getBody().getSubject();
             String role = parsed.getBody().get("role", String.class);
