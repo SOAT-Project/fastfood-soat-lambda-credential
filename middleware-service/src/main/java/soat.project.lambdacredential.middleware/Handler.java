@@ -7,7 +7,6 @@ import io.jsonwebtoken.Jws;
 import soat.project.lambdacredential.common.security.JwtService;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,18 +47,11 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
             Jws<Claims> parsed = jwtService.parseToken(token);
 
-            System.out.println("parsed: " + parsed);
-
             String subject = parsed.getBody().getSubject();
-
-            System.out.println("subject: " + subject);
             String role = parsed.getBody().get("role", String.class);
             String name = parsed.getBody().get("name", String.class);
 
             String methodArn = (String) event.get("methodArn");
-
-            System.out.println("methodArn: " + methodArn);
-
             String[] arnParts = methodArn.split(":");
             String apiGatewayArnPart = arnParts[5];
 
@@ -67,8 +59,6 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             String method = arnDetails[2];
 
             String path = arnDetails.length > 3 ? "/" + String.join("/", java.util.Arrays.copyOfRange(arnDetails, 3, arnDetails.length)) : "/";
-
-            System.out.println("path: " + path);
 
             if (!isAuthorized(role, path, method)) {
                 return deny(subject, "*", "User not authorized for this route");
@@ -85,11 +75,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
         System.out.println("role: " + role + ", path: " + path + ", method: " + method);
         if (Objects.equals(role, "STAFF")) return true;
 
-        System.out.println("Checking user permissions for path: " + path + " and method: " + method);
-
         List<String> routes = USER_ROUTE_NOT_ALLOWED.get(method);
-
-        System.out.println("Routes not allowed for USER on method " + method + ": " + routes);
 
         if (routes == null) return true;
 
@@ -133,15 +119,5 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
                         "error", message
                 )
         );
-    }
-
-    private String getAuthorizationHeader(Map<String, String> headers) {
-        if (headers == null) return null;
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            if ("authorization".equalsIgnoreCase(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return null;
     }
 }
