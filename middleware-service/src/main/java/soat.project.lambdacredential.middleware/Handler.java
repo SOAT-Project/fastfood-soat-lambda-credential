@@ -33,6 +33,9 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
         try {
             Map<String, String> headers = (Map<String, String>) event.get("headers");
 
+            System.out.println("Event: " + event);
+            System.out.println("headers: " + headers);
+
             String authHeader = getAuthorizationHeader(headers);
             if (authHeader == null) {
                 return deny("user", "*", "Authorization header is missing");
