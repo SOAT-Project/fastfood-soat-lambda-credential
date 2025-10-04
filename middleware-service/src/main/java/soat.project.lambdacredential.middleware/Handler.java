@@ -33,15 +33,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
         try {
             Map<String, String> headers = (Map<String, String>) event.get("headers");
 
-            String authHeader = null;
-            if (headers != null) {
-                authHeader = getAuthorizationHeader(headers);
-            }
-
-            if (authHeader == null && event.get("authorizationToken") != null) {
-                authHeader = (String) event.get("authorizationToken");
-            }
-
+            String authHeader = getAuthorizationHeader(headers);
             if (authHeader == null) {
                 return deny("user", "*", "Authorization header is missing");
             }
@@ -62,10 +54,16 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             String role = parsed.getBody().get("role", String.class);
             String name = parsed.getBody().get("name", String.class);
 
-            Map<String, Object> requestContext = (Map<String, Object>) event.get("requestContext");
-            Map<String, Object> http = (Map<String, Object>) requestContext.get("http");
-            String path = (String) http.get("path");
-            String method = (String) http.get("method");
+            String methodArn = (String) event.get("methodArn");
+
+            String[] arnParts = methodArn.split(":");
+            String apiGatewayArnPart = arnParts[5];
+
+            String[] arnDetails = apiGatewayArnPart.split("/");
+            String stage = arnDetails[1];
+            String method = arnDetails[2];
+            String path = arnDetails.length > 3 ? "/" + String.join("/", java.util.Arrays.copyOfRange(arnDetails, 3, arnDetails.length)) : "/";
+
 
             if (!isAuthorized(role, path, method)) {
                 return deny(subject, "*", "User not authorized for this route");
@@ -83,7 +81,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
         List<String> routes = USER_ROUTE_NOT_ALLOWED.get(method);
         if (routes == null) return true;
 
-        return routes.contains(path);
+        return !routes.contains(path);
     }
 
     private Map<String, Object> allow(String principalId, String resource, String role, String name) {

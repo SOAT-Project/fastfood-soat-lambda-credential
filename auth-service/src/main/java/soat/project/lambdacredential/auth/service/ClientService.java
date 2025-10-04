@@ -12,7 +12,7 @@ public class ClientService {
         this.db = db;
     }
 
-    public Client findByCpf(String cpf) throws SQLException {
+    public Client findByCpf(String cpf) {
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT public_id, cpf, name, email FROM clients WHERE cpf = ?")) {
                 stmt.setString(1, cpf);

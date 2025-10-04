@@ -47,8 +47,10 @@ public class AuthController {
 
             return successResponse(token);
         } catch (Exception e) {
-            return new APIGatewayProxyResponseEvent().withStatusCode(500)
-                    .withBody("{\"error\":\"" + e.getMessage() + "\"}");
+            e.printStackTrace();
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(500)
+                    .withBody("{\"error\":\"" + (e.getMessage() != null ? e.getMessage() : "Unexpected error") + "\"}");
         }
     }
 

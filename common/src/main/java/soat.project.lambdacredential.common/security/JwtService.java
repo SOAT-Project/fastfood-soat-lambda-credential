@@ -1,6 +1,7 @@
 package soat.project.lambdacredential.common.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
@@ -14,7 +15,7 @@ public class JwtService {
     private final Duration expiration;
 
     public JwtService(String secret, Duration expiration) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.expiration = expiration;
     }
 
@@ -35,9 +36,16 @@ public class JwtService {
         try {
             parseToken(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token expirado");
+        } catch (MalformedJwtException e) {
+            System.out.println("Token inválido");
+        } catch (SignatureException e) {
+            System.out.println("Assinatura inválida");
         } catch (JwtException e) {
-            return false;
+            System.out.println("Erro JWT: " + e.getMessage());
         }
+        return false;
     }
 
     public Jws<Claims> parseToken(String token) throws JwtException {
