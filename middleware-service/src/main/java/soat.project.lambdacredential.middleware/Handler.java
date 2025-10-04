@@ -25,8 +25,6 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
     public Handler() {
         String secret = System.getenv("JWT_SECRET");
-
-        System.out.println("JWT_SECRET: " + secret);
         this.jwtService = new JwtService(secret, Duration.ofHours(1));
     }
 
@@ -34,11 +32,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
     @SuppressWarnings("unchecked")
     public Map<String, Object> handleRequest(Map<String, Object> event, Context context) {
         try {
-            System.out.println("Event: " + event);
-
             String authHeader = (String) event.get("authorizationToken");
-
-            System.out.println("authHeader: " + authHeader);
             if (authHeader == null) {
                 return deny("user", "*", "Authorization header is missing");
             }
@@ -48,12 +42,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             }
 
             String token = authHeader.substring(7);
-
-            System.out.println("token: " + token);
-
             if (!jwtService.isValid(token)) {
-                System.out.println("ERRO PARSE: ");
-
                 return deny("user", "*", "Invalid or expired token");
             }
 
@@ -62,6 +51,8 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             System.out.println("parsed: " + parsed);
 
             String subject = parsed.getBody().getSubject();
+
+            System.out.println("subject: " + subject);
             String role = parsed.getBody().get("role", String.class);
             String name = parsed.getBody().get("name", String.class);
 
@@ -73,12 +64,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             String apiGatewayArnPart = arnParts[5];
 
             String[] arnDetails = apiGatewayArnPart.split("/");
-            String stage = arnDetails[1];
             String method = arnDetails[2];
-
-            System.out.println("stage: " + stage);
-            System.out.println("method: " + method);
-            System.out.println("role: " + Arrays.toString(arnDetails));
 
             String path = arnDetails.length > 3 ? "/" + String.join("/", java.util.Arrays.copyOfRange(arnDetails, 3, arnDetails.length)) : "/";
 
@@ -96,9 +82,15 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
     }
 
     private boolean isAuthorized(String role, String path, String method) {
+        System.out.println("role: " + role + ", path: " + path + ", method: " + method);
         if (Objects.equals(role, "STAFF")) return true;
 
+        System.out.println("Checking user permissions for path: " + path + " and method: " + method);
+
         List<String> routes = USER_ROUTE_NOT_ALLOWED.get(method);
+
+        System.out.println("Routes not allowed for USER on method " + method + ": " + routes);
+
         if (routes == null) return true;
 
         return !routes.contains(path);
