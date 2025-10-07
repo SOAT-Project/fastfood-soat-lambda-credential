@@ -28,3 +28,7 @@ variable "db_name" {
   description = "Database name"
   type        = string
 }
+
+variable "prefix" {
+  type = string
+}

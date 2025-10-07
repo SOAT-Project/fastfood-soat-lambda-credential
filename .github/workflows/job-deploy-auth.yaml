@@ -11,8 +11,6 @@ on:
         required: true
       aws-region:
         required: true
-      aws-lambda-s3-bucket:
-        required: true
       aws-statefile-s3-bucket:
         required: true
       aws-lock-dynamodb-table:
@@ -111,8 +109,6 @@ jobs:
           terraform destroy -auto-approve \
           -var="prefix=${{ inputs.environment || 'release' }}" \
           -var="aws-region=${{ secrets.aws-region }}" \
-          -var="lambda-s3-bucket=${{ secrets.aws-lambda-s3-bucket }}" \
-          -var="lambda-s3-key=auth-service-${{ inputs.environment || 'release' }}.zip" \
           -var="db_username=${{ secrets.db-username }}" \
           -var="db_password=${{ secrets.db-password }}" \
           -var="db_host=${{ secrets.db-host }}" \
@@ -126,8 +122,6 @@ jobs:
           terraform plan \
             -var="prefix=${{ inputs.environment || 'release' }}" \
             -var="aws-region=${{ secrets.aws-region }}" \
-            -var="lambda-s3-bucket=${{ secrets.aws-lambda-s3-bucket }}" \
-            -var="lambda-s3-key=auth-service-${{ inputs.environment || 'release' }}.zip" \
             -var="db_username=${{ secrets.db-username }}" \
             -var="db_password=${{ secrets.db-password }}" \
             -var="db_host=${{ secrets.db-host }}" \

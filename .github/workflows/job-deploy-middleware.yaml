@@ -13,8 +13,6 @@ on:
         required: true
       aws-statefile-s3-bucket:
         required: true
-      aws-lambda-s3-bucket:
-        required: true
       aws-lock-dynamodb-table:
         required: true
       jwt-secret:

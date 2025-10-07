@@ -18,7 +18,6 @@ jobs:
     secrets:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
-      aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
       aws-lock-dynamodb-table: ${{ secrets.AWS_DYNAMODB_LOCK_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
@@ -31,7 +30,6 @@ jobs:
     secrets:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
-      aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
       aws-lock-dynamodb-table: ${{ secrets.AWS_DYNAMODB_LOCK_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
