@@ -1,4 +1,4 @@
-name: Workflow Main Merge
+name: "Lambda Services - Main/Release Deploy"
 
 on:
   push:
@@ -13,6 +13,8 @@ jobs:
   deploy-middleware:
     name: Deploy Authorization Middleware
     uses: ./.github/workflows/job-deploy-middleware.yaml
+    with:
+      environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
@@ -24,6 +26,8 @@ jobs:
   deploy-auth:
     name: Deploy Auth Service
     uses: ./.github/workflows/job-deploy-auth.yaml
+    with:
+      environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
