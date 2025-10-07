@@ -17,7 +17,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
     private static final Map<String, List<String>> USER_ROUTE_NOT_ALLOWED = Map.of(
             "GET", List.of("/auths", "/orders/staff"),
-            "POST", List.of("/auths", "/orders", "/webhooks/mercadopago", "/mock", "/products"),
+            "POST", List.of("/auths", "/webhooks/mercadopago", "/mock", "/products"),
             "PUT", List.of("/auths", "/orders", "/products"),
             "DELETE", List.of("/auths", "/orders", "/products")
     );
