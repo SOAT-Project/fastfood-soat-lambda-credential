@@ -19,7 +19,7 @@ jobs:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
-      aws-lock-dynamodb-table: ${{ secrets.AWS_DYNAMODB_LOCK_TABLE }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
 
   deploy-auth:
@@ -31,7 +31,7 @@ jobs:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
-      aws-lock-dynamodb-table: ${{ secrets.AWS_DYNAMODB_LOCK_TABLE }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
       db-username: ${{ secrets.DB_USERNAME }}
       db-password: ${{ secrets.DB_PASSWORD }}
