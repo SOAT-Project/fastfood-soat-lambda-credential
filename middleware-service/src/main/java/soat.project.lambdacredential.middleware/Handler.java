@@ -17,7 +17,7 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
 
     private static final Map<String, List<String>> USER_ROUTE_NOT_ALLOWED = Map.of(
             "GET", List.of("/auths", "/orders/staff"),
-            "POST", List.of("/auths", "/orders", "/webhooks/mercadopago", "/mock", "/products"),
+            "POST", List.of("/auths", "/webhooks/mercadopago", "/mock", "/products"),
             "PUT", List.of("/auths", "/orders", "/products"),
             "DELETE", List.of("/auths", "/orders", "/products")
     );
@@ -31,21 +31,18 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
     @SuppressWarnings("unchecked")
     public Map<String, Object> handleRequest(Map<String, Object> event, Context context) {
         try {
-            Map<String, String> headers = (Map<String, String>) event.get("headers");
-
-            if (headers == null || !headers.containsKey("authorization")) {
-                return unauthorized("Missing Authorization header");
+            String authHeader = (String) event.get("authorizationToken");
+            if (authHeader == null) {
+                return deny("user", "*", "Authorization header is missing");
             }
 
-            String authHeader = headers.get("authorization");
             if (!authHeader.startsWith("Bearer ")) {
-                return unauthorized("Invalid Authorization format");
+                return deny("user", "*", "Invalid authorization header format");
             }
 
             String token = authHeader.substring(7);
-
             if (!jwtService.isValid(token)) {
-                return unauthorized("Invalid or expired token");
+                return deny("user", "*", "Invalid or expired token");
             }
 
             Jws<Claims> parsed = jwtService.parseToken(token);
@@ -54,40 +51,73 @@ public class Handler implements RequestHandler<Map<String, Object>, Map<String, 
             String role = parsed.getBody().get("role", String.class);
             String name = parsed.getBody().get("name", String.class);
 
-            Map<String, Object> requestContext = (Map<String, Object>) event.get("requestContext");
-            Map<String, Object> http = (Map<String, Object>) requestContext.get("http");
-            String path = (String) http.get("path");
-            String method = (String) http.get("method");
+            String methodArn = (String) event.get("methodArn");
+            String[] arnParts = methodArn.split(":");
+            String apiGatewayArnPart = arnParts[5];
+
+            String[] arnDetails = apiGatewayArnPart.split("/");
+            String method = arnDetails[2];
+
+            String path = arnDetails.length > 3 ? "/" + String.join("/", java.util.Arrays.copyOfRange(arnDetails, 3, arnDetails.length)) : "/";
 
             if (!isAuthorized(role, path, method)) {
-                return Map.of(
-                        "statusCode", 403,
-                        "body", String.format("Access denied for role=%s on path=%s", role, path)
-                );
+                return deny(subject, "*", "User not authorized for this route");
             }
 
-            return Map.of(
-                    "statusCode", 200,
-                    "body", String.format("Authorized! subject=%s, role=%s, name=%s", subject, role, name)
-            );
+            return allow(subject, "*", role, name);
         } catch (Exception e) {
-            return unauthorized("Invalid or expired token: " + e.getMessage());
+            e.printStackTrace();
+            return deny("user", "*", "Error: " + e.getMessage());
         }
     }
 
     private boolean isAuthorized(String role, String path, String method) {
+        System.out.println("role: " + role + ", path: " + path + ", method: " + method);
         if (Objects.equals(role, "STAFF")) return true;
 
         List<String> routes = USER_ROUTE_NOT_ALLOWED.get(method);
-        if (routes == null) return false;
 
-        return routes.contains(path);
+        if (routes == null) return true;
+
+        return !routes.contains(path);
     }
 
-    private Map<String, Object> unauthorized(String message) {
+    private Map<String, Object> allow(String principalId, String resource, String role, String name) {
         return Map.of(
-                "statusCode", 401,
-                "body", message
+                "principalId", principalId,
+                "policyDocument", Map.of(
+                        "Version", "2012-10-17",
+                        "Statement", List.of(
+                                Map.of(
+                                        "Action", "execute-api:Invoke",
+                                        "Effect", "Allow",
+                                        "Resource", resource
+                                )
+                        )
+                ),
+                "context", Map.of(
+                        "role", role,
+                        "name", name
+                )
+        );
+    }
+
+    private Map<String, Object> deny(String principalId, String resource, String message) {
+        return Map.of(
+                "principalId", principalId,
+                "policyDocument", Map.of(
+                        "Version", "2012-10-17",
+                        "Statement", List.of(
+                                Map.of(
+                                        "Action", "execute-api:Invoke",
+                                        "Effect", "Deny",
+                                        "Resource", resource
+                                )
+                        )
+                ),
+                "context", Map.of(
+                        "error", message
+                )
         );
     }
 }

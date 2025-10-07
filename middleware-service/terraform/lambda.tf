@@ -1,28 +1,24 @@
-resource "aws_s3_bucket" "lambda-middleware-service-bucket" {
-  bucket = "lambda-middleware-service-bucket"
-}
-
 resource "aws_s3_object" "lambda_middleware-service_zip" {
-  bucket = aws_s3_bucket.lambda-middleware-service-bucket.id
-  key    = "auth-service.zip"
-  source = "${path.module}/../../middleware-service.zip"
+  bucket = var.s3_bucket_name
+  key    = "middleware-service-${var.prefix}.zip"
+  source = "${path.module}/middleware-service.zip"
 }
 
 resource "aws_lambda_function" "middleware" {
-  function_name = "middleware-service"
-  handler       = "soat.project.lambdacredential.middleware.Handler"
+  function_name = "middleware-service-${var.prefix}"
+  handler       = "soat.project.lambdacredential.middleware.Handler::handleRequest"
   runtime       = "java17"
-  role          = aws_iam_role.lambda_role.arn
+  role          = var.lambda_role
   memory_size   = 512
   timeout       = 15
 
-  s3_bucket = aws_s3_bucket.lambda-middleware-service-bucket.id
-  s3_key    = aws_s3_object.lambda_middleware-service_zip.key
+  s3_bucket        = var.s3_bucket_name
+  s3_key           = aws_s3_object.lambda_middleware-service_zip.key
   source_code_hash = aws_s3_object.lambda_middleware-service_zip.etag
 
   environment {
     variables = {
-      JWT_SECRET        = var.jwt_secret
+      JWT_SECRET = var.jwt_secret
     }
   }
 }

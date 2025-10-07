@@ -1,8 +1,12 @@
-name: Workflow Main Merge
+name: "Lambda Services - Main/Release Deploy"
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, release ]
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
 
@@ -10,32 +14,38 @@ jobs:
     name: Deploy Authorization Middleware
     uses: ./.github/workflows/job-deploy-middleware.yaml
     with:
-      environment: prod
+      environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
+      aws-assume-role-arn: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
+      jwt-secret: ${{ secrets.JWT_SECRET }}
+      aws-lambda-bucket: ${{ secrets.AWS_LAMBDA_BUCKET }}
 
   deploy-auth:
     name: Deploy Auth Service
     uses: ./.github/workflows/job-deploy-auth.yaml
     with:
-      environment: prod
+      environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
+      aws-assume-role-arn: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
+      jwt-secret: ${{ secrets.JWT_SECRET }}
+      db-username: ${{ secrets.DB_USERNAME }}
+      db-password: ${{ secrets.DB_PASSWORD }}
+      db-host: ${{ secrets.DB_HOST }}
+      db-name: ${{ secrets.DB_NAME }}
+      aws-lambda-bucket: ${{ secrets.AWS_LAMBDA_BUCKET }}
 
   notify:
     name: Notify
-    needs: [deploy-middleware]
+    needs: [deploy-middleware, deploy-auth]
     if: ${{ always() }}
     uses: ./.github/workflows/job-notify-build.yaml
+    with:
+      build_status: ${{ needs.deploy-middleware.result && needs.deploy-auth.result == 'success' && 'success' || 'failure' }}
     secrets:
       DISCORD_BUILD_WEBHOOK: ${{ secrets.DISCORD_BUILD_WEBHOOK }}

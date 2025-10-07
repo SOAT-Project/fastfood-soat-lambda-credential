@@ -9,8 +9,8 @@ public class Database {
     private final String password;
 
     public Database() {
-        this.url = "jdbc:postgresql://" + System.getenv("DB_PROXY_ENDPOINT") + "/" + System.getenv("DB_NAME");
-        this.user = System.getenv("DB_USER");
+        this.url = "jdbc:postgresql://" + System.getenv("DB_HOST") + ":5432" + "/" + System.getenv("DB_NAME") + "?sslmode=require";
+        this.user = System.getenv("DB_USERNAME");
         this.password = System.getenv("DB_PASSWORD");
     }
 
@@ -18,7 +18,6 @@ public class Database {
         Properties props = new Properties();
         props.setProperty("user", this.user);
         props.setProperty("password", this.password);
-        props.setProperty("ssl", "true");
         return DriverManager.getConnection(url, props);
     }
 }

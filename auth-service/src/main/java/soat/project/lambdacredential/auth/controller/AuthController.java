@@ -25,7 +25,7 @@ public class AuthController {
 
     public APIGatewayProxyResponseEvent userAuth(Map<String, Object> body) {
         try {
-            String cpf = (String) body.get("cpf");
+            String cpf = (String) body.get("identification");
             if (cpf == null) {
                 String tokenGuest = jwtService.generateToken(
                         "guest",
@@ -47,8 +47,10 @@ public class AuthController {
 
             return successResponse(token);
         } catch (Exception e) {
-            return new APIGatewayProxyResponseEvent().withStatusCode(500)
-                    .withBody("{\"error\":\"" + e.getMessage() + "\"}");
+            e.printStackTrace();
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(500)
+                    .withBody("{\"error\":\"" + (e.getMessage() != null ? e.getMessage() : "Unexpected error") + "\"}");
         }
     }
 
@@ -67,7 +69,9 @@ public class AuthController {
 
             return successResponse(token);
         } catch (Exception e) {
-            return errorResponse(e.getMessage(), 500);
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "Erro desconhecido";
+
+            return errorResponse(errorMsg, 500);
         }
     }
 
