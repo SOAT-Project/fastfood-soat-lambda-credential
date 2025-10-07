@@ -9,7 +9,7 @@ public class Database {
     private final String password;
 
     public Database() {
-        this.url = "jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_NAME") + "?sslmode=require";
+        this.url = "jdbc:postgresql://" + System.getenv("DB_HOST") + ":5432" + "/" + System.getenv("DB_NAME") + "?sslmode=require";
         this.user = System.getenv("DB_USERNAME");
         this.password = System.getenv("DB_PASSWORD");
     }

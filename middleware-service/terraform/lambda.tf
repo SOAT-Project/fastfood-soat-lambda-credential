@@ -4,8 +4,8 @@ data "aws_s3_bucket" "soat-credential-lambdas" {
 
 resource "aws_s3_object" "lambda_middleware-service_zip" {
   bucket = data.aws_s3_bucket.soat-credential-lambdas.id
-  key    = "middleware-service.zip"
-  source = "${path.module}/middleware-service.zip"
+  key    = "middleware-service-${var.prefix}.zip"
+  source = "${path.module}/middleware-service-${var.prefix}.zip"
 }
 
 resource "aws_lambda_function" "middleware" {

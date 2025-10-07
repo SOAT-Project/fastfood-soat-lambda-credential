@@ -1,8 +1,11 @@
+data "aws_s3_bucket" "soat-credential-lambdas" {
+  bucket = "soat-credential-lambdas"
+}
+
 resource "aws_s3_object" "lambda_auth_service_zip" {
-  provider = aws
-  bucket   = "soat-credential-lambdas"
-  key      = "auth-service.zip"
-  source   = "${path.module}/auth-service.zip"
+  bucket   = data.aws_s3_bucket.soat-credential-lambdas.id
+  key      = "auth-service-${var.prefix}.zip"
+  source   = "${path.module}/auth-service-${var.prefix}.zip"
 }
 
 resource "aws_lambda_function" "auth" {

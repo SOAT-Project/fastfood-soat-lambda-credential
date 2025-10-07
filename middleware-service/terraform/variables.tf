@@ -7,3 +7,7 @@ variable "jwt_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "prefix" {
+  type = string
+}

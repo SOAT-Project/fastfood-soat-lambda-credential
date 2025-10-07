@@ -1,4 +1,4 @@
-name: Deploy FastFoodSoatLambdaCredential Auth
+name: "Auth Service - Deploy"
 
 on:
   workflow_call:
@@ -10,8 +10,6 @@ on:
       aws-assume-role-arn:
         required: true
       aws-region:
-        required: true
-      aws-lambda-s3-bucket:
         required: true
       aws-statefile-s3-bucket:
         required: true
@@ -31,6 +29,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,11 +52,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: auth-service-zip
-          path: auth-service/build/distributions/auth-service.zip
+          path: auth-service/build/distributions/auth-service-${{ inputs.environment || 'release' }}.zip
 
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     needs: build
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -62,7 +68,7 @@ jobs:
       - name: Download Lambda Artifact
         uses: actions/download-artifact@v4
         with:
-          name: auth-service-zip
+          name: auth-service-${{ inputs.environment || 'release' }}.zip
           path: auth-service/terraform/
 
       - name: Setup Terraform
@@ -76,36 +82,54 @@ jobs:
           role-to-assume: ${{ secrets.aws-assume-role-arn }}
           aws-region: ${{ secrets.aws-region }}
 
+      - name: Read destroy configuration
+        id: read-destroy-config
+        run: |
+          DESTROY="$(jq -r '.${{ inputs.environment }}' ./auth-service/terraform/destroy_config.json)"
+          echo "destroy=$(echo $DESTROY)" >> $GITHUB_OUTPUT
+
       - name: Terraform Init
         working-directory: ./auth-service/terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.aws-statefile-s3-bucket }}" \
-            -backend-config="key=${{ github.event.repository.name }}-auth-service" \
+            -backend-config="key=${{ github.event.repository.name }}-auth-service-${{ inputs.environment || 'release' }}" \
             -backend-config="region=${{ secrets.aws-region }}" \
             -backend-config="dynamodb_table=${{ secrets.aws-lock-dynamodb-table }}" \
 
-      - name: Terraform Format Check
-        if: github.event_name == 'pull_request'
+      - name: Terraform Validate
         working-directory: ./auth-service/terraform
-        run: terraform fmt -check -recursive
+        run: terraform validate
 
-      - name: Terraform Auto Format
-        if: github.ref == 'refs/heads/main'
-        working-directory: ./auth-service/terraform
-        run: terraform fmt -recursive
-
-      - name: Terraform Plan
-        if: github.event_name == 'pull_request'
-        working-directory: ./auth-service/terraform
-        run: terraform plan -input=false
-
-      - name: Terraform Apply
+      - name: Terraform Destroy
+        if: ${{ steps.read-destroy-config.outputs.destroy == 'true' }}
         working-directory: ./auth-service/terraform
         run: |
-          terraform apply -auto-approve \
-            -var="jwt_secret=${{ secrets.jwt-secret }}" \
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform destroy -auto-approve \
+          -var="prefix=${{ inputs.environment || 'release' }}" \
+          -var="aws-region=${{ secrets.aws-region }}" \
+          -var="db_username=${{ secrets.db-username }}" \
+          -var="db_password=${{ secrets.db-password }}" \
+          -var="db_host=${{ secrets.db-host }}" \
+          -var="db_name=${{ secrets.db-name }}"
+
+      - name: Terraform Plan
+        if: ${{ steps.read-destroy-config.outputs.destroy != 'true' }}
+        working-directory: ./auth-service/terraform
+        run: |
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform plan \
+            -var="prefix=${{ inputs.environment || 'release' }}" \
+            -var="aws-region=${{ secrets.aws-region }}" \
             -var="db_username=${{ secrets.db-username }}" \
             -var="db_password=${{ secrets.db-password }}" \
             -var="db_host=${{ secrets.db-host }}" \
             -var="db_name=${{ secrets.db-name }}"
+
+      - name: Terraform Apply
+        working-directory: ./auth-service/terraform
+        if: steps.read-destroy-config.outputs.destroy != 'true'
+        run: |
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform apply "${{ inputs.environment }}.plan"

@@ -1,4 +1,4 @@
-name: Workflow Main Merge
+name: "Lambda Services - Main/Release Deploy"
 
 on:
   push:
@@ -13,23 +13,25 @@ jobs:
   deploy-middleware:
     name: Deploy Authorization Middleware
     uses: ./.github/workflows/job-deploy-middleware.yaml
+    with:
+      environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
-      aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
-      aws-lock-dynamodb-table: ${{ secrets.AWS_DYNAMODB_LOCK_TABLE }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
 
   deploy-auth:
     name: Deploy Auth Service
     uses: ./.github/workflows/job-deploy-auth.yaml
+    with:
+      environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
       aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.AWS_REGION }}
-      aws-lambda-s3-bucket: ${{ secrets.AWS_LAMBDA_S3_BUCKET }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
-      aws-lock-dynamodb-table: ${{ secrets.AWS_DYNAMODB_LOCK_TABLE }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
       db-username: ${{ secrets.DB_USERNAME }}
       db-password: ${{ secrets.DB_PASSWORD }}

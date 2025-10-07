@@ -1,4 +1,4 @@
-name: Deploy FastFoodSoatLambdaCredential Middleware
+name: "Auth Service - Deploy"
 
 on:
   workflow_call:
@@ -13,8 +13,6 @@ on:
         required: true
       aws-statefile-s3-bucket:
         required: true
-      aws-lambda-s3-bucket:
-        required: true
       aws-lock-dynamodb-table:
         required: true
       jwt-secret:
@@ -23,6 +21,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,11 +44,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: middleware-service-zip
-          path: middleware-service/build/distributions/middleware-service.zip
+          path: middleware-service/build/distributions/middleware-service-${{ inputs.environment || 'release' }}.zip
 
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     needs: build
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,7 +60,7 @@ jobs:
       - name: Download Lambda Artifact
         uses: actions/download-artifact@v4
         with:
-          name: middleware-service-zip
+          name: middleware-service-${{ inputs.environment || 'release' }}.zip
           path: middleware-service/terraform/
 
       - name: Setup Terraform
@@ -68,31 +74,40 @@ jobs:
           role-to-assume: ${{ secrets.aws-assume-role-arn }}
           aws-region: ${{ secrets.aws-region }}
 
+      - name: Read destroy configuration
+        id: read-destroy-config
+        run: |
+          DESTROY="$(jq -r '.${{ inputs.environment }}' ./middleware-service/terraform/destroy_config.json)"
+          echo "destroy=$(echo $DESTROY)" >> $GITHUB_OUTPUT
+
       - name: Terraform Init
         working-directory: ./middleware-service/terraform
         run: |
            terraform init \
              -backend-config="bucket=${{ secrets.aws-statefile-s3-bucket }}" \
-             -backend-config="key=${{ github.event.repository.name }}-middleware-service" \
+             -backend-config="key=${{ github.event.repository.name }}-middleware-service-${{ inputs.environment || 'release' }}" \
              -backend-config="region=${{ secrets.aws-region }}" \
              -backend-config="dynamodb_table=${{ secrets.aws-lock-dynamodb-table }}" \
 
-      - name: Terraform Format Check
-        if: github.event_name == 'pull_request'
+      - name: Terraform Validate
         working-directory: ./middleware-service/terraform
-        run: terraform fmt -check -recursive
+        run: terraform validate
 
-      - name: Terraform Auto Format
-        if: github.ref == 'refs/heads/main'
+      - name: Terraform Destroy
+        if: steps.read-destroy-config.outputs.destroy == 'true'
         working-directory: ./middleware-service/terraform
-        run: terraform fmt -recursive
+        run: terraform destroy -auto-approve -var="prefix=${{ inputs.environment || 'release' }}" -var="jwt_secret=${{ secrets.jwt-secret }}"
 
       - name: Terraform Plan
-        if: github.event_name == 'pull_request'
+        if: steps.read-destroy-config.outputs.destroy != 'true'
         working-directory: ./middleware-service/terraform
-        run: terraform plan -input=false
+        run: |
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform plan -var="prefix=${{ inputs.environment || 'release' }}" -var="jwt_secret=${{ secrets.jwt-secret }}"
 
       - name: Terraform Apply
-        id: apply
+        if: steps.read-destroy-config.outputs.destroy != 'true'
         working-directory: ./middleware-service/terraform
-        run: terraform apply -auto-approve -var="jwt_secret=${{ secrets.jwt-secret }}"
+        run: |
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+          terraform apply "${{ inputs.environment }}.plan"
