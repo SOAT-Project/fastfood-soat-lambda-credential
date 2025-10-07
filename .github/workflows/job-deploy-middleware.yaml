@@ -45,7 +45,7 @@ jobs:
       - name: Upload Lambda Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: middleware-service-zip
+          name: middleware-service.zip
           path: middleware-service/build/distributions/middleware-service.zip
 
   deploy:
