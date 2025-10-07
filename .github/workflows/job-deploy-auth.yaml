@@ -53,7 +53,7 @@ jobs:
       - name: Upload Lambda Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auth-service-zip
+          name: auth-service.zip
           path: auth-service/build/distributions/auth-service.zip
 
   deploy:
