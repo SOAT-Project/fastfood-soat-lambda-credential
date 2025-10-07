@@ -32,3 +32,13 @@ variable "db_name" {
 variable "prefix" {
   type = string
 }
+
+variable "s3_bucket_name" {
+  description = "S3 bucket name where Lambda zip files are stored"
+  type        = string
+}
+
+variable "lambda_role" {
+  description = "IAM role ARN for Lambda functions"
+  type        = string
+}

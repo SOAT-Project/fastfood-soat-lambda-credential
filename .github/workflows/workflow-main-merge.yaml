@@ -16,11 +16,12 @@ jobs:
     with:
       environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
-      aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      aws-assume-role-arn: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
       aws-region: ${{ secrets.AWS_REGION }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
       aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
       jwt-secret: ${{ secrets.JWT_SECRET }}
+      aws-lambda-bucket: ${{ secrets.AWS_LAMBDA_BUCKET }}
 
   deploy-auth:
     name: Deploy Auth Service
@@ -28,7 +29,7 @@ jobs:
     with:
       environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'release' }}
     secrets:
-      aws-assume-role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      aws-assume-role-arn: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
       aws-region: ${{ secrets.AWS_REGION }}
       aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
       aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
@@ -37,6 +38,7 @@ jobs:
       db-password: ${{ secrets.DB_PASSWORD }}
       db-host: ${{ secrets.DB_HOST }}
       db-name: ${{ secrets.DB_NAME }}
+      aws-lambda-bucket: ${{ secrets.AWS_LAMBDA_BUCKET }}
 
   notify:
     name: Notify
