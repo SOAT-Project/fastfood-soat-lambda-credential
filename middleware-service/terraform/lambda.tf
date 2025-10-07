@@ -1,7 +1,7 @@
 resource "aws_s3_object" "lambda_middleware-service_zip" {
   bucket = var.s3_bucket_name
   key    = "middleware-service-${var.prefix}.zip"
-  source = "${path.module}/middleware-service-${var.prefix}.zip"
+  source = "${path.module}/middleware-service.zip"
 }
 
 resource "aws_lambda_function" "middleware" {

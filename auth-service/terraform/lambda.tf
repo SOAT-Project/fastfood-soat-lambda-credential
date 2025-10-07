@@ -1,7 +1,7 @@
 resource "aws_s3_object" "lambda_auth_service_zip" {
   bucket = var.s3_bucket_name
   key    = "auth-service-${var.prefix}.zip"
-  source = "${path.module}/auth-service-${var.prefix}.zip"
+  source = "${path.module}/auth-service.zip"
 }
 
 resource "aws_lambda_function" "auth" {
