@@ -110,7 +110,6 @@ jobs:
           terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
           terraform destroy -auto-approve \
           -var="prefix=${{ inputs.environment || 'release' }}" \
-          -var="aws-region=${{ secrets.aws-region }}" \
           -var="db_username=${{ secrets.db-username }}" \
           -var="db_password=${{ secrets.db-password }}" \
           -var="db_host=${{ secrets.db-host }}" \
@@ -126,7 +125,6 @@ jobs:
           terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
           terraform plan \
             -var="prefix=${{ inputs.environment || 'release' }}" \
-            -var="aws-region=${{ secrets.aws-region }}" \
             -var="db_username=${{ secrets.db-username }}" \
             -var="db_password=${{ secrets.db-password }}" \
             -var="db_host=${{ secrets.db-host }}" \
