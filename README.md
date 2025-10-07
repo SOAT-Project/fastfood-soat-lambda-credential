@@ -42,7 +42,7 @@ O deploy é automatizado via **GitHub Actions** e **Terraform**:
 
 - **Build**: compila com Gradle, gera `.zip` (ShadowJar) e faz upload como artifact.
 - **Deploy**: baixa o `.zip`, executa `terraform init/plan/apply` para atualizar a Lambda na AWS.
-- **Secrets**: variáveis sensíveis (como `JWT_SECRET`, dados do banco) são injetadas via GitHub Secrets.
+- **Secrets**: variáveis sensíveis (como `JWT_SECRET`, dados do banco e S3 para guardar os zip) são injetadas via GitHub Secrets.
 - **OIDC**: autenticação do pipeline com AWS sem expor chaves.
 
 ### Principais Workflows
@@ -66,29 +66,48 @@ O deploy é automatizado via **GitHub Actions** e **Terraform**:
    zip -j middleware-service/terraform/middleware-service.zip middleware-service/build/libs/*-all.jar
    ```
 
-3. **Terraform apply**
+3. **Pré-requisitos AWS**
+   - Crie o bucket S3: ex:`soat-credential-lambdas` (para armazenar os artefatos das Lambdas)
+   - Crie a IAM Role ex:`lambda_role` com permissões:
+     - `AWSLambdaBasicExecutionRole`
+     - `AmazonRDSDataFullAccess`
+     - (Exemplo: via console AWS, selecione as políticas ao criar a role)
+
+4. **Terraform apply**
    ```bash
    cd auth-service/terraform
    terraform init
    terraform apply -auto-approve \
+     -var="prefix=release" \
+     -var="aws-region=sa-east-1" \
      -var="jwt_secret=meu-segredo" \
      -var="db_username=postgres" \
      -var="db_password=123" \
      -var="db_host=db.example.com" \
-     -var="db_name=fastfood"
+     -var="db_name=fastfood" \
+     -var="s3_bucket_name=soat-credential-lambdas" \
+     -var="lambda_role=arn:aws:iam::<account-id>:role/lambda_role"
 
    cd ../../middleware-service/terraform
    terraform init
    terraform apply -auto-approve \
-     -var="jwt_secret=meu-segredo"
+     -var="prefix=release" \
+     -var="aws-region=sa-east-1" \
+     -var="jwt_secret=meu-segredo" \
+     -var="s3_bucket_name=soat-credential-lambdas" \
+     -var="lambda_role=arn:aws:iam::<account-id>:role/lambda_role"
    ```
 
 ---
 
 ## 🔑 Variáveis de ambiente (Terraform)
 
-- `jwt_secret` (obrigatório): segredo do JWT.
-- `db_username`, `db_password`, `db_host`, `db_name`: dados do banco (apenas para Auth Service).
+- `prefix`: ambiente (ex: `release`, `dev`, etc)
+- `aws-region`: região AWS (ex: `sa-east-1`)
+- `jwt_secret`: segredo do JWT
+- `db_username`, `db_password`, `db_host`, `db_name`: dados do banco (apenas para Auth Service)
+- `s3_bucket_name`: nome do bucket S3 para artefatos das Lambdas
+- `lambda_role`: ARN da IAM Role para execução da Lambda
 
 ---
 
@@ -99,4 +118,3 @@ O deploy é automatizado via **GitHub Actions** e **Terraform**:
 - **Terraform** → sobe e mantém Lambdas e S3.
 - **GitHub Actions** → automatiza build, empacote e deploy com OIDC seguro.
 - **Infra AWS** → Lambda + RDS Proxy + S3 + IAM + API Gateway.
-
