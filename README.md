@@ -36,23 +36,6 @@ O projeto é dividido em **duas Lambdas**:
 
 ---
 
-## 🛡️ Pré-requisito: IAM Lambda Role
-
-Antes de rodar o Terraform, crie manualmente a role `lambda_role` no IAM da AWS com as permissões:
-
-- `AWSLambdaBasicExecutionRole`
-- `AmazonRDSDataFullAccess`
-
-**Passos:**
-1. Acesse o console IAM → Roles → Create role.
-2. Selecione "Lambda" como trusted entity.
-3. Anexe as políticas acima.
-4. Salve como `lambda_role`.
-
-O ARN dessa role será referenciado no Terraform para as Lambdas.
-
----
-
 ## 🛠️ CI/CD e Deploy
 
 O deploy é automatizado via **GitHub Actions** e **Terraform**:

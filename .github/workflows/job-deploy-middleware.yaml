@@ -15,6 +15,8 @@ on:
         required: true
       aws-lock-dynamodb-table:
         required: true
+      aws-lambda-bucket:
+        required: true
       jwt-secret:
         required: true
 
@@ -96,14 +98,14 @@ jobs:
       - name: Terraform Destroy
         if: steps.read-destroy-config.outputs.destroy == 'true'
         working-directory: ./middleware-service/terraform
-        run: terraform destroy -auto-approve -var="prefix=${{ inputs.environment || 'release' }}" -var="jwt_secret=${{ secrets.jwt-secret }}"
+        run: terraform destroy -auto-approve -var="prefix=${{ inputs.environment || 'release' }}" -var="jwt_secret=${{ secrets.jwt-secret }}" -var="s3_bucket_name=${{ secrets.aws-lambda-bucket }}" -var="lambda_role=${{ secrets.aws-assume-role-arn }}"
 
       - name: Terraform Plan
         if: steps.read-destroy-config.outputs.destroy != 'true'
         working-directory: ./middleware-service/terraform
         run: |
           terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
-          terraform plan -var="prefix=${{ inputs.environment || 'release' }}" -var="jwt_secret=${{ secrets.jwt-secret }}"
+          terraform plan -var="prefix=${{ inputs.environment || 'release' }}" -var="jwt_secret=${{ secrets.jwt-secret }}" -var="s3_bucket_name=${{ secrets.aws-lambda-bucket }}" -var="lambda_role=${{ secrets.aws-assume-role-arn }}" -out="${{ inputs.environment }}.plan"
 
       - name: Terraform Apply
         if: steps.read-destroy-config.outputs.destroy != 'true'

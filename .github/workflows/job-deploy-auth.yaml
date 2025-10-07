@@ -15,6 +15,8 @@ on:
         required: true
       aws-lock-dynamodb-table:
         required: true
+      aws-lambda-bucket:
+        required: true
       jwt-secret:
         required: true
       db-username:
@@ -112,7 +114,9 @@ jobs:
           -var="db_username=${{ secrets.db-username }}" \
           -var="db_password=${{ secrets.db-password }}" \
           -var="db_host=${{ secrets.db-host }}" \
-          -var="db_name=${{ secrets.db-name }}"
+          -var="db_name=${{ secrets.db-name }}" \
+          -var="s3_bucket_name=${{ secrets.aws-lambda-bucket }}" \
+          -var="lambda_role=${{ secrets.aws-assume-role-arn }}"
 
       - name: Terraform Plan
         if: ${{ steps.read-destroy-config.outputs.destroy != 'true' }}
@@ -125,7 +129,10 @@ jobs:
             -var="db_username=${{ secrets.db-username }}" \
             -var="db_password=${{ secrets.db-password }}" \
             -var="db_host=${{ secrets.db-host }}" \
-            -var="db_name=${{ secrets.db-name }}"
+            -var="db_name=${{ secrets.db-name }}" \
+            -var="s3_bucket_name=${{ secrets.aws-lambda-bucket }}" \
+            -var="lambda_role=${{ secrets.aws-assume-role-arn }}" \
+            -out="${{ inputs.environment }}.plan"
 
       - name: Terraform Apply
         working-directory: ./auth-service/terraform

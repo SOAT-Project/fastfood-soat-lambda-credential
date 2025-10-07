@@ -1,22 +1,18 @@
-data "aws_s3_bucket" "soat-credential-lambdas" {
-  bucket = "soat-credential-lambdas"
-}
-
 resource "aws_s3_object" "lambda_auth_service_zip" {
-  bucket   = data.aws_s3_bucket.soat-credential-lambdas.id
-  key      = "auth-service-${var.prefix}.zip"
-  source   = "${path.module}/auth-service-${var.prefix}.zip"
+  bucket = var.s3_bucket_name
+  key    = "auth-service-${var.prefix}.zip"
+  source = "${path.module}/auth-service-${var.prefix}.zip"
 }
 
 resource "aws_lambda_function" "auth" {
-  function_name = "auth-service"
+  function_name = "auth-service-${var.prefix}"
   handler       = "soat.project.lambdacredential.auth.Handler::handleRequest"
   runtime       = "java17"
-  role          = data.aws_iam_role.lambda_role.arn
+  role          = var.lambda_role
   memory_size   = 512
   timeout       = 15
 
-  s3_bucket        = "soat-credential-lambdas"
+  s3_bucket        = var.s3_bucket_name
   s3_key           = aws_s3_object.lambda_auth_service_zip.key
   source_code_hash = aws_s3_object.lambda_auth_service_zip.etag
 
