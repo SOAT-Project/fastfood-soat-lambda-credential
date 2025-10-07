@@ -24,9 +24,9 @@ on:
       db-password:
         required: true
       db-host:
-        required: false
+        required: true
       db-name:
-        required: false
+        required: true
 
 jobs:
   build:
@@ -116,6 +116,7 @@ jobs:
           -var="db_host=${{ secrets.db-host }}" \
           -var="db_name=${{ secrets.db-name }}" \
           -var="s3_bucket_name=${{ secrets.aws-lambda-bucket }}" \
+          -var="jwt_secret=${{ secrets.jwt-secret }}" \
           -var="lambda_role=${{ secrets.aws-assume-role-arn }}"
 
       - name: Terraform Plan
@@ -132,11 +133,12 @@ jobs:
             -var="db_name=${{ secrets.db-name }}" \
             -var="s3_bucket_name=${{ secrets.aws-lambda-bucket }}" \
             -var="lambda_role=${{ secrets.aws-assume-role-arn }}" \
+            -var="jwt_secret=${{ secrets.jwt-secret }}" \
             -out="${{ inputs.environment }}.plan"
 
       - name: Terraform Apply
-        working-directory: ./auth-service/terraform
         if: steps.read-destroy-config.outputs.destroy != 'true'
+        working-directory: ./auth-service/terraform
         run: |
           terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
           terraform apply "${{ inputs.environment }}.plan"
