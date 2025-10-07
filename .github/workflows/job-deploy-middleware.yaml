@@ -46,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: middleware-service-zip
-          path: middleware-service/build/distributions/middleware-service-${{ inputs.environment || 'release' }}.zip
+          path: middleware-service/build/distributions/middleware-service.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
       - name: Download Lambda Artifact
         uses: actions/download-artifact@v4
         with:
-          name: middleware-service-${{ inputs.environment || 'release' }}.zip
+          name: middleware-service.zip
           path: middleware-service/terraform/
 
       - name: Setup Terraform
